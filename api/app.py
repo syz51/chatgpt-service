@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-import client
-from models import ChatRequest
+# from service import client
+# from service.models import ChatRequest
 
 app = FastAPI()
 
@@ -11,7 +11,7 @@ async def hello():
     return {'Hello': 'World'}
 
 
-@app.post('/chat')
-async def chat(request: ChatRequest):
-    res = await client.chat(request.messages)
-    return {'result': res}
+# @app.post('/chat')
+# async def chat(request: ChatRequest):
+#     res = await client.chat(request.messages)
+#     return {'result': res}
