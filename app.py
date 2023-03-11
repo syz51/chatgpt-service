@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from mangum import Mangum
 
 import client
 from models import ChatRequest
@@ -16,6 +15,3 @@ async def hello():
 async def chat(request: ChatRequest):
     res = await client.chat(request.messages)
     return {'result': res}
-
-
-handler = Mangum(app, lifespan="off")
