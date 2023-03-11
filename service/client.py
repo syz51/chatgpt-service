@@ -1,6 +1,6 @@
 import openai
 
-from models import get_settings
+from service.models import get_settings
 
 openai.api_key = get_settings().openai_api_key
 
