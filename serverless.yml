@@ -1,0 +1,40 @@
+service: chatgpt-service
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.9
+  stage: ${opt:stage, "dev"}
+  region: ap-east-1
+
+package:
+  individually: true
+  exclude:
+    - venv/**
+    - node_modules/**
+    - .env
+    - .gitignore
+    - requirements.txt
+    - serverless.yml
+    - package.json
+    - package-lock.json
+    - .serverless/**
+
+functions:
+  app:
+    handler: app.handler
+    events:
+      - httpApi: '*'
+    ssmToEnvironment:
+      - OPENAI_API_KEY
+
+plugins:
+  - serverless-python-requirements
+  - serverless-ssm-fetch
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+  serverlessSsmFetch:
+    OPENAI_API_KEY: /openai-api-key~true
