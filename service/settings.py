@@ -30,7 +30,8 @@ class ChatSettings(BaseModel):
         MessagesPlaceholder(variable_name="history"),
         HumanMessagePromptTemplate.from_template("{input}")
     ])
-    model = ChatOpenAI(openai_api_key=get_environment().openai_api_key, model_kwargs={'temperature': 0.7})
+    model = ChatOpenAI(openai_api_key=get_environment().openai_api_key, model_kwargs={'temperature': 0.7},
+                       max_retries=1)
 
 
 @lru_cache(maxsize=1)
