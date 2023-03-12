@@ -1,11 +1,11 @@
-import openai
+from langchain.chains import ConversationChain
 
-from service.models import get_settings
+from service.memory import DynamodbChatMemory
+from service.models import ChatRequest
+from service.settings import ChatSettings, get_chat_settings
 
-openai.api_key = get_settings().openai_api_key
 
-
-async def chat(messages: list):
-    completion = await openai.ChatCompletion.acreate(model="gpt-3.5-turbo",
-                                                     messages=messages)
-    return completion.choices[0].message.content
+async def chat(chat_request: ChatRequest, settings: ChatSettings = get_chat_settings()):
+    memory = DynamodbChatMemory(chat_id=chat_request.chat_id)
+    conversation = ConversationChain(memory=memory, prompt=settings.prompt, llm=settings.model)
+    return await conversation.apredict(input=chat_request.message)
