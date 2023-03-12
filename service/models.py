@@ -4,6 +4,8 @@ from dyntastic import Dyntastic
 from langchain.schema import HumanMessage, AIMessage
 from pydantic import BaseModel, Field
 
+from service.settings import get_environment
+
 
 class ChatRequest(BaseModel):
     chat_id: str
@@ -23,9 +25,9 @@ class HumanChatMessage(HumanMessage):
 
 
 class ChatHistory(Dyntastic):
-    __table_name__ = "chatgpt-messages"
+    __table_name__ = get_environment().table_name
     __hash_key__ = "chat_id"
-    __table_region__ = 'ap-east-1'
+    __table_region__ = get_environment().aws_region
 
     chat_id: str
     messages: List[Union[AIChatMessage, HumanChatMessage]] = Field(default_factory=list)

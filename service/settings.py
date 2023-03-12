@@ -8,6 +8,8 @@ from pydantic import BaseSettings, BaseModel
 
 class EnvironmentSettings(BaseSettings):
     openai_api_key: str
+    aws_region: str
+    table_name: str
 
     class Config:
         env_file = ".env"

@@ -10,6 +10,11 @@ run:
   network:
     port: 8000
     env: MY_APP_PORT
+  env:
+    - name: AWS_REGION
+      value: "ap-northeast-1"
+    - name: TABLE_NAME
+      value: "chatgpt-messages"
   secrets:
     - name: OPENAI_API_KEY
       value-from: "openai-api-key"
