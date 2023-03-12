@@ -21,8 +21,8 @@ def get_environment() -> EnvironmentSettings:
 class ChatSettings(BaseModel):
     sys_message = "The following is a friendly conversation between a human and an AI. The AI is talkative and " \
                   "provides lots of specific details from its context. The AI is called ChatGPT, a large language " \
-                  "model trained by OpenAI. Answer as concisely as possible.If the AI does not know the answer to a " \
-                  "question, it truthfully says it does not know."
+                  "model trained by OpenAI. If the AI does not know the answer to a question, it truthfully says it " \
+                  "does not know."
     prompt = ChatPromptTemplate.from_messages([
         SystemMessagePromptTemplate.from_template(sys_message),
         MessagesPlaceholder(variable_name="history"),
