@@ -1,9 +1,19 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
-from service import client
-from service.models import ChatRequest, ChatResponse
+from chat import service as chat_service
+from chat.settings import get_chat_settings
+from chat.model import ChatRequest, ChatResponse
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    get_chat_settings()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get('/')
@@ -12,5 +22,5 @@ async def hello():
 
 
 @app.post('/chat')
-async def chat(request: ChatRequest):
-    return ChatResponse(message=await client.chat(request))
+async def chat(request: ChatRequest) -> ChatResponse:
+    return ChatResponse(message=await chat_service.chat(request))

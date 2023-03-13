@@ -4,7 +4,7 @@ from dyntastic import Dyntastic
 from langchain.schema import HumanMessage, AIMessage
 from pydantic import BaseModel, Field
 
-from service.settings import get_environment
+from common.settings import get_environment
 
 
 class ChatRequest(BaseModel):

@@ -16,7 +16,7 @@ WORKDIR /usr/app
 
 COPY --chown=python:python --from=build /usr/app/venv ./venv
 COPY --chown=python:python app.py .
-COPY --chown=python:python service ./service
+COPY --chown=python:python common ./service
 
 USER 999
 EXPOSE 8000

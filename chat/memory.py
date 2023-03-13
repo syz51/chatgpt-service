@@ -6,7 +6,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.memory.utils import get_prompt_input_key
 from pydantic import BaseModel
 
-from service.models import ChatHistory
+from chat.model import ChatHistory
 
 
 class DynamodbChatMemory(ConversationBufferMemory, BaseModel):
