@@ -7,7 +7,7 @@ from langchain.prompts import HumanMessagePromptTemplate, MessagesPlaceholder, S
 
 from chat.handler import AsyncChatResponseCallbackHandler
 from chat.memory import DynamodbChatMemory
-from chat.model import ChatRequest
+from chat.model import ChatRequest, ChatHistory
 from common.settings import get_environment, EnvironmentSettings
 
 
@@ -25,3 +25,11 @@ async def chat(chat_request: ChatRequest, websocket: WebSocket,
 
     conversation = ConversationChain(memory=memory, prompt=prompt, llm=model)
     return await conversation.apredict(input=chat_request.message)
+
+
+async def get_history_messages(chat_id: str) -> ChatHistory:
+    return ChatHistory.get(hash_key=chat_id, consistent_read=True)
+
+
+async def list_chat_ids():
+    pass

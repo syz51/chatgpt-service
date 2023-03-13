@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 from chat import service as chat_service
-from chat.model import ChatRequest, ChatResponse
+from chat.model import ChatRequest, ChatResponse, MessagesRequest, ChatHistory
 from common.settings import get_environment
 
 
@@ -14,7 +14,7 @@ async def lifespan(application):
     yield
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, openapi_url=None)
 
 
 @app.get('/')
@@ -22,7 +22,17 @@ async def hello():
     return {'Hello': 'World'}
 
 
-@app.websocket('/chat')
+@app.post('/messages')
+async def messages(request: MessagesRequest) -> ChatHistory:
+    return await chat_service.get_history_messages(chat_id=request.chat_id)
+
+
+@app.get('/chat/list')
+async def chat_list():
+    return await chat_service.list_chat_ids()
+
+
+@app.websocket('/chat/ws')
 async def chat(websocket: WebSocket):
     await websocket.accept()
     while True:

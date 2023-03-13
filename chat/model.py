@@ -17,6 +17,10 @@ class ChatResponse(BaseModel):
     status: str
 
 
+class MessagesRequest(BaseModel):
+    chat_id: str
+
+
 class AIChatMessage(AIMessage):
     type: Literal['AI'] = 'AI'
 
