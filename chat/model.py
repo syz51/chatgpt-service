@@ -1,4 +1,4 @@
-from typing import List, Literal, Union
+from typing import List, Literal
 
 from dyntastic import Dyntastic
 from langchain.schema import HumanMessage, AIMessage
@@ -31,7 +31,7 @@ class ChatHistory(Dyntastic):
     __table_region__ = get_environment().aws_region
 
     chat_id: str
-    messages: List[Union[AIChatMessage, HumanChatMessage]] = Field(default_factory=list)
+    messages: List[AIChatMessage | HumanChatMessage] = Field(default_factory=list)
 
     def add_user_message(self, message: str) -> None:
         self.messages.append(HumanChatMessage(content=message))
