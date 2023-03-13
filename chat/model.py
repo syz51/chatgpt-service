@@ -14,6 +14,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     message: str
+    status: str
 
 
 class AIChatMessage(AIMessage):

@@ -1,15 +1,16 @@
+import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 from chat import service as chat_service
-from chat.settings import get_chat_settings
 from chat.model import ChatRequest, ChatResponse
+from common.settings import get_environment
 
 
 @asynccontextmanager
-async def lifespan(application: FastAPI):
-    get_chat_settings()
+async def lifespan(application):
+    get_environment()
     yield
 
 
@@ -21,6 +22,20 @@ async def hello():
     return {'Hello': 'World'}
 
 
-@app.post('/chat')
-async def chat(request: ChatRequest) -> ChatResponse:
-    return ChatResponse(message=await chat_service.chat(request))
+@app.websocket('/chat')
+async def chat(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        try:
+            request = ChatRequest.parse_obj(await websocket.receive_json())
+            await chat_service.chat(request, websocket)
+        except WebSocketDisconnect:
+            logging.info("websocket disconnect")
+            break
+        except Exception as e:
+            logging.error(e)
+            resp = ChatResponse(
+                status="error",
+                message="Sorry, something went wrong. Please try again."
+            )
+            await websocket.send_json(resp.dict())
