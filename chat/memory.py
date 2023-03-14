@@ -1,12 +1,12 @@
 from functools import cached_property
 from typing import Dict, Any
 
+from dyntastic import DoesNotExist
 from langchain.memory import ConversationBufferMemory
 from langchain.memory.utils import get_prompt_input_key
 from pydantic import BaseModel
 
 from chat.model import ChatHistory
-from chat.service import get_history_messages
 
 
 class DynamodbChatMemory(ConversationBufferMemory, BaseModel):
@@ -17,7 +17,10 @@ class DynamodbChatMemory(ConversationBufferMemory, BaseModel):
 
     @cached_property
     def chat_history(self) -> ChatHistory:
-        return await get_history_messages(self.chat_id)
+        try:
+            return ChatHistory.get(hash_key=self.chat_id, consistent_read=True)
+        except DoesNotExist:
+            return ChatHistory(chat_id=self.chat_id)
 
     @property
     def buffer(self) -> Any:
