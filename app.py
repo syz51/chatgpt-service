@@ -2,6 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 
 from chat import service as chat_service
 from chat.model import ChatRequest, ChatResponse, MessagesRequest, ChatHistory
@@ -15,6 +16,18 @@ async def lifespan(application):
 
 
 app = FastAPI(lifespan=lifespan, openapi_url=None)
+
+origins = [
+    get_environment().allowed_origin,
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["POST"],
+    allow_headers=["*"],
+)
 
 
 @app.get('/')
