@@ -22,11 +22,11 @@ class MessagesRequest(BaseModel):
 
 
 class AIChatMessage(AIMessage):
-    type: Literal['AI'] = 'AI'
+    message_type: Literal['AI'] = 'AI'
 
 
 class HumanChatMessage(HumanMessage):
-    type: Literal['Human'] = 'Human'
+    message_type: Literal['Human'] = 'Human'
 
 
 class ChatHistory(Dyntastic):
