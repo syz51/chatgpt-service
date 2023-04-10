@@ -1,19 +1,16 @@
 from fastapi import APIRouter
-from langchain import LLMChain
-from langchain.callbacks import AsyncCallbackManager
-from langchain.chat_models import ChatOpenAI
 
-from config import get_environment
-from translate.model import TranslateRequest, prompt
+from translate.model import TranslateRequest, chinese_sys, subs_sys
+from translate.service import create_chain, generate_prompt
 
 router = APIRouter(prefix='/translate')
 
 
 @router.post("/chinese")
 async def translate_to_chinese(req: TranslateRequest):
-    env = get_environment()
+    return await create_chain(generate_prompt(chinese_sys)).apredict(text=req.message)
 
-    model = ChatOpenAI(openai_api_key=env.openai_api_key, model_kwargs={'temperature': 0},
-                       max_retries=1, callback_manager=AsyncCallbackManager(handlers=[]))
-    chain = LLMChain(prompt=prompt, llm=model, callback_manager=AsyncCallbackManager(handlers=[]))
-    return await chain.apredict(text=req.message)
+
+@router.post('/subs')
+async def translate_subs(req: TranslateRequest):
+    return await create_chain(generate_prompt(subs_sys)).apredict(text=req.message)
