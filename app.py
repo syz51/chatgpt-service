@@ -1,18 +1,21 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
+from translate.api import router as translate_router
 from chat import service as chat_service
-from chat.model import ChatRequest, ChatResponse, MessagesRequest, ChatHistory
-from common.settings import get_environment
+from chat.model import ChatRequest, ChatResponse, MessagesRequest, ConversationsRequest
+from config import get_environment
+from db.client import GraphQLClient, gql_client
 
 
 @asynccontextmanager
 async def lifespan(application):
-    get_environment()
+    client = gql_client()
     yield
+    await client.client.close_async()
 
 
 app = FastAPI(lifespan=lifespan, openapi_url=None)
@@ -29,6 +32,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(translate_router)
+
 
 @app.get('/')
 async def hello():
@@ -36,22 +41,22 @@ async def hello():
 
 
 @app.post('/messages')
-async def messages(request: MessagesRequest) -> ChatHistory:
-    return await chat_service.get_history_messages(chat_id=request.chat_id)
+async def messages(request: MessagesRequest, client: GraphQLClient = Depends(gql_client)):
+    return await client.get_messages(request.user_id, request.conversation_id)
 
 
-@app.get('/chat/list')
-async def chat_list():
-    return await chat_service.list_chat_ids()
+@app.post('/conversations')
+async def conversations(request: ConversationsRequest, client: GraphQLClient = Depends(gql_client)):
+    return await client.list_conversations(request.user_id)
 
 
 @app.websocket('/chat/ws')
-async def chat(websocket: WebSocket):
+async def chat(websocket: WebSocket, client: GraphQLClient = Depends(gql_client)):
     await websocket.accept()
     while True:
         try:
             request = ChatRequest.parse_obj(await websocket.receive_json())
-            await chat_service.chat(request, websocket)
+            await chat_service.chat(request, websocket, client)
         except WebSocketDisconnect:
             logging.info("websocket disconnect")
             break

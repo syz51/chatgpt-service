@@ -1,39 +1,21 @@
-from dyntastic import DoesNotExist
 from fastapi import WebSocket
+from langchain import LLMChain
 from langchain.callbacks.base import AsyncCallbackManager
-from langchain.chains import ConversationChain
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts import HumanMessagePromptTemplate, MessagesPlaceholder, SystemMessagePromptTemplate, \
-    ChatPromptTemplate
 
 from chat.handler import AsyncChatResponseCallbackHandler
-from chat.memory import DynamodbChatMemory
-from chat.model import ChatRequest, ChatHistory
-from common.settings import get_environment, EnvironmentSettings
+from chat.model import ChatRequest, HumanChatMessage
+from config import get_environment, EnvironmentSettings
+from db.client import GraphQLClient
 
 
-async def chat(chat_request: ChatRequest, websocket: WebSocket,
-               settings: EnvironmentSettings = get_environment()) -> str:
-    prompt = ChatPromptTemplate.from_messages([
-        SystemMessagePromptTemplate.from_template(settings.sys_message),
-        MessagesPlaceholder(variable_name="history"),
-        HumanMessagePromptTemplate.from_template("{input}")
-    ])
-    memory = DynamodbChatMemory(chat_id=chat_request.chat_id)
+async def chat(request: ChatRequest, websocket: WebSocket, client: GraphQLClient):
+    settings: EnvironmentSettings = get_environment()
+    chat_history = await client.get_messages(request.user_id, request.conversation_id)
     model = ChatOpenAI(openai_api_key=settings.openai_api_key, model_kwargs={'temperature': 0.7},
                        max_retries=1, streaming=True, verbose=True, callback_manager=AsyncCallbackManager(
-            [AsyncChatResponseCallbackHandler(chat_id=chat_request.chat_id, websocket=websocket)]))
-
-    conversation = ConversationChain(memory=memory, prompt=prompt, llm=model)
-    return await conversation.apredict(input=chat_request.message)
-
-
-async def get_history_messages(chat_id: str) -> ChatHistory:
-    try:
-        return ChatHistory.get(hash_key=chat_id, consistent_read=True)
-    except DoesNotExist:
-        return ChatHistory(chat_id=chat_id)
-
-
-async def list_chat_ids():
-    pass
+            [AsyncChatResponseCallbackHandler(conversation_id=request.conversation_id, websocket=websocket,
+                                              messages=chat_history + [HumanChatMessage(content=request.message)],
+                                              new=len(chat_history) == 0, client=client)]))
+    chain = LLMChain(prompt=settings.prompt, llm=model, callback_manager=AsyncCallbackManager(handlers=[]))
+    await chain.apredict(input=request.message, history=chat_history)

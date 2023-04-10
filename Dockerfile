@@ -15,9 +15,7 @@ RUN mkdir /usr/app && chown python:python /usr/app
 WORKDIR /usr/app
 
 COPY --chown=python:python --from=build /usr/app/venv ./venv
-COPY --chown=python:python app.py .
-COPY --chown=python:python chat ./chat
-COPY --chown=python:python common ./common
+COPY --chown=python:python . .
 
 USER 999
 EXPOSE 8000

@@ -1,14 +1,13 @@
-from typing import List, Literal
+from typing import Literal
+from uuid import UUID
 
-from dyntastic import Dyntastic
 from langchain.schema import HumanMessage, AIMessage
-from pydantic import BaseModel, Field
-
-from common.settings import get_environment
+from pydantic import BaseModel
 
 
 class ChatRequest(BaseModel):
-    chat_id: str
+    conversation_id: UUID
+    user_id: UUID
     message: str
 
 
@@ -18,7 +17,12 @@ class ChatResponse(BaseModel):
 
 
 class MessagesRequest(BaseModel):
-    chat_id: str
+    user_id: UUID
+    conversation_id: UUID
+
+
+class ConversationsRequest(BaseModel):
+    user_id: UUID
 
 
 class AIChatMessage(AIMessage):
@@ -27,21 +31,3 @@ class AIChatMessage(AIMessage):
 
 class HumanChatMessage(HumanMessage):
     message_type: Literal['Human'] = 'Human'
-
-
-class ChatHistory(Dyntastic):
-    __table_name__ = get_environment().table_name
-    __hash_key__ = "chat_id"
-    __table_region__ = get_environment().aws_region
-
-    chat_id: str
-    messages: List[AIChatMessage | HumanChatMessage] = Field(default_factory=list)
-
-    def add_user_message(self, message: str) -> None:
-        self.messages.append(HumanChatMessage(content=message))
-
-    def add_ai_message(self, message: str) -> None:
-        self.messages.append(AIChatMessage(content=message))
-
-    def clear(self) -> None:
-        self.delete()
