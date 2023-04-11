@@ -9,8 +9,8 @@ chinese_sys = 'I want you to act as an Chinese translator and improver. I will s
 subs_sys = 'I want you to act as a Chinese subtitles translator and improver. I will send you some text from ' \
            '{file_type} file in {language} and you will translate it to Chinese. Dont change the existing formatting.' \
            ' Try to be as fluent and native as possible. Avoid translationese. Do not write explanations. Try to ' \
-           'translate even without context. If you cant translate something, or the input doesnt have text to ' \
-           'translate, just send [ERROR CANT TRANSLATE] followed by the reason.'
+           'translate even without context. If you really cant translate something at all, or the input doesnt have ' \
+           'text to translate, just send [ERROR CANT TRANSLATE] followed by the reason.'
 
 
 class TranslateRequest(BaseModel):
