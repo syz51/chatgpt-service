@@ -16,6 +16,6 @@ def generate_prompt(sys_message) -> ChatPromptTemplate:
 def create_chain(prompt: ChatPromptTemplate) -> LLMChain:
     env = get_environment()
 
-    model = ChatOpenAI(openai_api_key=env.openai_api_key, model_kwargs={'temperature': 0},
-                       max_retries=1, callback_manager=AsyncCallbackManager(handlers=[]))
+    model = ChatOpenAI(openai_api_key=env.openai_api_key, temperature=0, max_retries=1,
+                       callback_manager=AsyncCallbackManager(handlers=[]))
     return LLMChain(prompt=prompt, llm=model, callback_manager=AsyncCallbackManager(handlers=[]))

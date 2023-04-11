@@ -6,11 +6,14 @@ chinese_sys = 'I want you to act as an Chinese translator and improver. I will s
               'Chinese words and sentences. Keep the meaning same, but make them more literary. I want you to ' \
               'only reply the correction, the improvements and nothing else, do not write explanations.'
 
-subs_sys = 'I want you to act as an Chinese subtitles translator and improver. I will send you some text from either ' \
-           'ASS file or SRT file in any language and you will detect the language, translate it and answer in the ' \
-           'corrected and improved version of my text, in Chinese. Dont change the existing formatting. I want you to' \
-           ' only reply the correction, the improvements and nothing else, do not write explanations.'
+subs_sys = 'I want you to act as a Chinese subtitles translator and improver. I will send you some text from ' \
+           '{file_type} file in {language} and you will translate it to Chinese. Dont change the existing formatting.' \
+           ' Try to be as fluent and native as possible. Avoid translationese. Do not write explanations. Try to ' \
+           'translate even without context. If you cant translate something, or the input doesnt have text to ' \
+           'translate, just send [ERROR CANT TRANSLATE] followed by the reason.'
 
 
 class TranslateRequest(BaseModel):
     message: str
+    language: str
+    file_type: str
