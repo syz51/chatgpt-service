@@ -12,7 +12,8 @@ from chat.model import HumanChatMessage, AIChatMessage
 from config import get_environment
 from db.requests import query_list_conversations, query_get_messages, create_messages_request_variables, \
     create_conversations_request_variables, mutation_create_conversation_version, \
-    mutation_conversation_version_variables
+    mutation_conversation_version_variables, mutation_update_conversation_version, \
+    mutation_update_conversation_version_variables
 
 
 class GraphQLClient:
@@ -45,7 +46,9 @@ class GraphQLClient:
                                             conversation_id, messages))
 
     async def update_conversation_version(self, conversation_id: UUID, messages: List):
-        pass
+        await self.client.execute_async(mutation_update_conversation_version,
+                                        variable_values=await mutation_update_conversation_version_variables(
+                                            conversation_id, messages))
 
 
 @lru_cache(maxsize=1)

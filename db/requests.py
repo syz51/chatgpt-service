@@ -109,3 +109,30 @@ async def mutation_conversation_version_variables(conversation_id: UUID, message
             }
         ]
     }
+
+
+mutation_update_conversation_version = gql(
+    """
+mutation Mutation($set: conversation_versionsUpdateInput!, $filter: conversation_versionsFilter) {
+  updateconversation_versionsCollection(set: $set, filter: $filter) {
+    affectedCount
+  }
+}
+    """
+)
+
+
+async def mutation_update_conversation_version_variables(conversation_id: UUID, messages: List):
+    return {
+        "set": {
+            "messages": json.dumps(messages, default=pydantic_encoder)
+        },
+        "filter": {
+            "conversation_id": {
+                "eq": str(conversation_id)
+            },
+            "version": {
+                "eq": 1
+            }
+        }
+    }
